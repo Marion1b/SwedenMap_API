@@ -20,15 +20,15 @@ export default class UserController extends BaseController{
                 path:'/', 
                 method: 'get', 
                 handler: this.getUsers.bind(this),
-            }/*,{
+            },/*{
                 path: '/:id',
                 method: 'get',
                 handler: this.getUser.bind(this),
-            },{
+            },*/{
                 path: '/',
                 method:'post',
                 handler: this.createUser.bind(this),
-            },{
+            }/*,{
                 path: "/:id",
                 method: "put",
                 handler: this.updateUser.bind(this),
@@ -57,6 +57,33 @@ export default class UserController extends BaseController{
             this.send(res);
         }catch(err){
             next(err);
+        }
+    }
+
+    /**
+     * @param req
+     * @param res
+     * @param next
+     */
+
+    public async createUser(
+        req:Request,
+        res:Response,
+        next:NextFunction
+    ):Promise<void>{
+        try{
+             const user : UsersAttributes = await this.user.create({
+                "username":"banana",
+                'password':"aaaa",
+                'email':'banane@mail.com',
+                'country':'france'
+            });
+            res.locals.data={
+                user,
+            };
+            super.send(res, StatusCodes.CREATED);
+        }catch(error){
+            next(error);
         }
     }
 }

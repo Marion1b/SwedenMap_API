@@ -20,7 +20,6 @@ async function assertDatabaseConnection() {
 
 assertDatabaseConnection();
 
-console.log(registerRoutes());
 const user = new UserService();
 console.log(user.getAll());
 console.log('jufds')
