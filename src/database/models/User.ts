@@ -1,8 +1,9 @@
-import { DataTypes, Model, Optional, UUIDV4 } from 'sequelize';
+import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../index';
 
+// interface for what is coming from the db
 interface UsersAttributes {
-    user_id: string;
+    userId: number;
     username: string;
     password: string;
     email: string;
@@ -11,12 +12,13 @@ interface UsersAttributes {
     city?: string;
 }
 
-interface UsersCreationAttributes extends Optional<UsersAttributes, 'user_id'> {}
+//interface for what we're sending to the db
+interface UsersCreationAttributes extends Optional<UsersAttributes, 'userId'> {}
 
 class User 
     extends Model<UsersAttributes, UsersCreationAttributes>
     implements UsersAttributes{
-        public user_id! : string;
+        public userId! : number;
         public username!: string;
         public password!: string;
         public email! : string;
@@ -30,12 +32,18 @@ class User
 
 User.init(
     {
+
+        userId:{
+            type:DataTypes.INTEGER,
+            primaryKey: true,
+            allowNull:false
+        },
         username:{
             type: DataTypes.STRING(50),
             allowNull: false,
         },
         password:{
-            type:DataTypes.STRING(50),
+            type:DataTypes.STRING(255),
             allowNull:false,
         },
         email:{
@@ -51,12 +59,6 @@ User.init(
         city:{
             type:DataTypes.STRING,
         },
-        user_id:{
-            type:DataTypes.UUID,
-            defaultValue: UUIDV4,
-            primaryKey: true,
-            allowNull:false
-        }
     },{
         sequelize,
         modelName:'User',

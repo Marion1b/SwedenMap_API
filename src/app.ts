@@ -23,6 +23,6 @@ assertDatabaseConnection();
 console.log(registerRoutes());
 const user = new UserService();
 console.log(user.getAll());
-console.log('test')
+console.log('jufds')
 
 app.listen(8080);
