@@ -10,8 +10,40 @@ export class UserService{
     async getAll():Promise<UsersAttributes[]>{
         try{
             const users = await User.findAll();
-            console.log(users);
             return users;
+        }catch(error){
+            console.error(error);
+            throw error;
+        }
+    }
+
+    //find by id
+    async findOneById(userId: number): Promise<UsersAttributes>{
+        try{
+            const user = await User.findByPk(userId)
+            return user
+        }catch(error){
+            console.error(error);
+            throw error;
+        }
+    }
+
+    //find by email
+    async findOneByEmail(userEmail:string): Promise<UsersAttributes>{
+        try{
+            const user =  await User.findOne({where: {email : userEmail}});
+            return user;
+        }catch(error){
+            console.error(error);
+            throw error;
+        }
+    }
+
+    //find by username
+    async findOneByUsername(userUsername:string):Promise<UsersAttributes>{
+        try{
+            const user = await User.findOne({where:{username:userUsername}});
+            return user;
         }catch(error){
             console.error(error);
             throw error;

@@ -1,7 +1,6 @@
 import sequelizeConnection from './database';
 import express, { Express, Request, Response } from 'express';
 import registerRoutes from './routes';
-import { UserService } from './components/user/UserService';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 
@@ -48,6 +47,9 @@ app.get('/', (req, res)=>{
 })
 
 const PORT = process.env.APP_PORT || 8080;
+
+const router = registerRoutes();
+app.use( router);
 
 init();
 
