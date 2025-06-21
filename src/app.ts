@@ -2,8 +2,21 @@ import sequelizeConnection from './database';
 import express, { Express, Request, Response } from 'express';
 import registerRoutes from './routes';
 import { UserService } from './components/user/UserService';
+import cors from 'cors';
+import bodyParser from 'body-parser';
 
-const app = express();
+const corsOptions = {
+  origin: 'http://localhost:5173',
+  optionsSuccessStatus:200
+};
+console.log(`Launching app`);
+
+const app:Express = express();
+
+app.use(cors(corsOptions));
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended:true}));
 
 //check if connection with database is ok
 async function assertDatabaseConnection() {
@@ -18,10 +31,24 @@ async function assertDatabaseConnection() {
   }
 }
 
-assertDatabaseConnection();
+async function init(){
+  await assertDatabaseConnection();
 
-const user = new UserService();
-console.log(user.getAll());
-console.log('jufds')
+  console.log(`Starting API on port ${PORT}`);
 
-app.listen(8080);
+  app.listen(PORT, ()=>{
+    console.log(`API started and listening on port ${PORT}`);
+  })
+}
+
+app.use(express.json());
+
+app.get('/', (req, res)=>{
+  res.send('Hello World!')
+})
+
+const PORT = process.env.APP_PORT || 8080;
+
+init();
+
+app.listen(PORT);
