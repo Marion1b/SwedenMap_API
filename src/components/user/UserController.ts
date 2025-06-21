@@ -25,7 +25,7 @@ export default class UserController extends BaseController{
                 method: 'get',
                 handler: this.getUser.bind(this),
             },*/{
-                path: '/',
+                path: '/register',
                 method:'post',
                 handler: this.createUser.bind(this),
             }/*,{
@@ -71,19 +71,38 @@ export default class UserController extends BaseController{
         res:Response,
         next:NextFunction
     ):Promise<void>{
+        const user: UsersAttributes = req.body;
         try{
-             const user : UsersAttributes = await this.user.create({
-                "username":"banana",
-                'password':"aaaa",
-                'email':'banane@mail.com',
-                'country':'france'
-            });
-            res.locals.data={
-                user,
+            //check if email not already in db
+            const emailExists : UsersAttributes| null = await this.user.findOneByEmail(user.email);
+            if(emailExists){
+                res.status(400).json({message: 'Email already registered'});
+                return
+            }
+
+            //check if username not already in db
+            const usernameExists: UsersAttributes | null = await this.user.findOneByUsername(user.username);
+            if(usernameExists){
+                res.status(400).json({message: 'Username already used'});
+            }
+
+            //create user
+            const newUser = await this.user.create(user);
+            if(!newUser){
+                res.status(400).json({message: 'Failed to create new user'});
+                return
             };
-            super.send(res, StatusCodes.CREATED);
+
+            //response user created
+            res.status(201).json({
+                message: 'user created',
+                user: await this.user.findOneById(newUser.userId)
+            })
+            return
         }catch(error){
-            next(error);
+            console.error(error);
+            res.status(500).json({message: 'Internal Server Error'});
+            return;
         }
     }
 }

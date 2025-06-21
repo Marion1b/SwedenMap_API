@@ -10,6 +10,9 @@ function registerControllerRoutes(routes: RouteDefinition[]):Router{
             case 'get':
                 controllerRouter.get(route.path, route.handler);
                 break;
+            case 'post':
+                controllerRouter.post(route.path, route.handler);
+                break;
             default:
                 throw new Error (`Unsupported HTTP method: ${route.method}`);
         }
@@ -23,6 +26,8 @@ export default function registerRoutes(): Router {
         const controllers = [
             new UserController(),
         ];
+
+        
         controllers.forEach((controller) => {
             router.use(
                 `/v1/${controller.basePath}`,
