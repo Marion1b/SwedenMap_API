@@ -34,6 +34,9 @@ module.exports = {
       city:{
         type:Sequelize.STRING
       },
+      refreshJWT:{
+        type:Sequelize.STRING
+      },
       createdAt:{
         type: Sequelize.DATE,
         allowNull:false
