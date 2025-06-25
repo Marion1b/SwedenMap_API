@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
+import { Utils } from '../../utils/utils';
 import BaseController from '../BaseControllers';
 import { UserService } from './UserService';
 import { UsersAttributes } from '../../database/models/User';
@@ -86,6 +87,9 @@ export default class UserController extends BaseController{
                 res.status(400).json({message: 'Username already used'});
             }
 
+            //hash password
+            user.password = Utils.encryptPassword(user.password);
+
             //create user
             const newUser = await this.user.create(user);
             if(!newUser){
@@ -93,10 +97,25 @@ export default class UserController extends BaseController{
                 return
             };
 
+            //create access token
+            const accessToken = Utils.generateAccessJWT(newUser.userId);
+            //create refresh token
+            const refreshToken = Utils.generateRefreshJWT(newUser.userId);
+
+            if(!accessToken || !refreshToken){
+                res.status(400).json({message: 'Could not generate web token'});
+                return;
+            }
+
+            //add refreshToken to user
+            await this.user.updateRefreshToken(refreshToken, newUser.userId);
+        
+
             //response user created
             res.status(201).json({
                 message: 'user created',
-                user: await this.user.findOneById(newUser.userId)
+                user: await this.user.findOneById(newUser.userId),
+                access_JWT: accessToken
             })
             return
         }catch(error){
