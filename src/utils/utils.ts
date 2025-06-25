@@ -27,4 +27,10 @@ export class Utils {
             })
         }
     }
+
+    public static verifyRefreshJWT(refreshToken:string):string | JwtPayload | undefined {
+        if(process.env.JWT_REFRESH){
+            return jwt.verify(refreshToken, process.env.JWT_REFRESH);
+        }
+    }
 }
