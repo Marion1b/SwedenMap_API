@@ -1,5 +1,6 @@
 import sequelizeConnection from './database';
 import express, { Express, Request, Response } from 'express';
+import cookieParser from 'cookie-parser';
 import registerRoutes from './routes';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -16,6 +17,8 @@ app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
+
+app.use(cookieParser());
 
 //check if connection with database is ok
 async function assertDatabaseConnection() {

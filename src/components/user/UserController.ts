@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import cookieParser from 'cookie-parser';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import { Utils } from '../../utils/utils';
 import BaseController from '../BaseControllers';
@@ -106,10 +107,8 @@ export default class UserController extends BaseController{
                 res.status(400).json({message: 'Could not generate web token'});
                 return;
             }
-
-            //add refreshToken to user
-            await this.user.updateRefreshToken(refreshToken, newUser.userId);
         
+            res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
 
             //response user created
             res.status(201).json({
@@ -156,9 +155,6 @@ export default class UserController extends BaseController{
                 res.status(400).json({message : 'Could not generate web token'});
                 return;
             }
-
-            //add refresh token to user
-            await this.user.updateRefreshToken(refreshToken, user.userId);
 
             //return user authentified
             res.status(201).json({

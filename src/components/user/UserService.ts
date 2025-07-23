@@ -84,22 +84,4 @@ export class UserService{
             throw error;
         }
     }
-
-    //update user
-    async updateRefreshToken(token:string, id:number):Promise<void>{
-        try{
-            await User.update(
-                {refreshJWT:token},
-                {
-                    where:{
-                        userId: id
-                    }
-                }
-            );
-            return;
-        }catch(error){
-            console.error(error);
-            throw error;
-        }
-    }
 }
