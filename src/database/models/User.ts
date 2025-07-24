@@ -10,7 +10,6 @@ interface UsersAttributes {
     avatar?: string;
     country?: string;
     city?: string;
-    refreshJWT?:string;
 }
 
 //interface for what we're sending to the db
@@ -26,7 +25,6 @@ class User
         public avatar? : string;
         public country?: string;
         public city? :string;
-        public refreshJWT:string;
 
         public readonly createdAt!: Date;
         public readonly updatedAt! : Date;
@@ -60,9 +58,6 @@ User.init(
             type:DataTypes.STRING,
         },
         city:{
-            type:DataTypes.STRING,
-        },
-        refreshJWT:{
             type:DataTypes.STRING,
         }
 

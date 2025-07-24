@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import cookieParser from 'cookie-parser';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import { Utils } from '../../utils/utils';
 import BaseController from '../BaseControllers';
@@ -21,11 +22,11 @@ export default class UserController extends BaseController{
                 path:'/', 
                 method: 'get', 
                 handler: this.getUsers.bind(this),
-            },/*{
-                path: '/:id',
-                method: 'get',
-                handler: this.getUser.bind(this),
-            },*/{
+            },{
+                path: '/login',
+                method: 'post',
+                handler: this.login.bind(this),
+            },{
                 path: '/register',
                 method:'post',
                 handler: this.createUser.bind(this),
@@ -106,10 +107,8 @@ export default class UserController extends BaseController{
                 res.status(400).json({message: 'Could not generate web token'});
                 return;
             }
-
-            //add refreshToken to user
-            await this.user.updateRefreshToken(refreshToken, newUser.userId);
         
+            res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
 
             //response user created
             res.status(201).json({
@@ -122,6 +121,50 @@ export default class UserController extends BaseController{
             console.error(error);
             res.status(500).json({message: 'Internal Server Error'});
             return;
+        }
+    }
+
+    public async login(
+        req:Request,
+        res:Response,
+        next:NextFunction
+    ):Promise<void>{
+        const reqEmail:string = req.body.email;
+        const reqPassword:string = req.body.password;
+
+        try{
+            //get user informations
+            const user : UsersAttributes |null = await this.user.findOneByEmailLogin(reqEmail);
+            if(!user){
+                res.status(400).json({message:'Email does not exist in db'});
+                return;
+            }
+            const isGoodPassword:Promise<boolean> = Utils.verifyPassword(reqPassword, user.password);
+
+            if(!isGoodPassword){
+                res.status(400).json({message:'Password incorrect'});
+                return;
+            }
+
+            //create access token
+            const accessToken = Utils.generateAccessJWT(user.userId);
+            //create refresh token
+            const refreshToken = Utils.generateRefreshJWT(user.userId);
+
+            if(!accessToken || !refreshToken){
+                res.status(400).json({message : 'Could not generate web token'});
+                return;
+            }
+
+            //return user authentified
+            res.status(201).json({
+                message:'User loged in',
+                user: await this.user.findOneById(user.userId),
+                access_JWT: accessToken
+            });
+        }catch(error){
+            console.error(error);
+            res.status(500).json({message:'Internal server error'});
         }
     }
 }

@@ -47,6 +47,19 @@ export class UserService{
         }
     }
 
+    //find one by email and get password to login
+    async findOneByEmailLogin(userEmail:string): Promise<UsersAttributes>{
+        try{
+            const user =  await User.findOne({
+                where: {email : userEmail}
+            });
+            return user;
+        }catch(error){
+            console.error(error);
+            throw error;
+        }
+    }
+
     //find by username
     async findOneByUsername(userUsername:string):Promise<UsersAttributes>{
         try{
@@ -66,24 +79,6 @@ export class UserService{
         try{
             const user = await User.create(payload);
             return user;
-        }catch(error){
-            console.error(error);
-            throw error;
-        }
-    }
-
-    //update user
-    async updateRefreshToken(token:string, id:number):Promise<void>{
-        try{
-            await User.update(
-                {refreshJWT:token},
-                {
-                    where:{
-                        userId: id
-                    }
-                }
-            );
-            return;
         }catch(error){
             console.error(error);
             throw error;
