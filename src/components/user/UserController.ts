@@ -187,7 +187,7 @@ export default class UserController extends BaseController{
         next:NextFunction
     ):Promise<void>{
         const user:UserModifyAttributes = req.body;
-        const userId:number = parseInt(req.query.userId as string);
+        const userId:number = user.userId;
         const authHeader = req.headers['authorization'];
         const accessToken = authHeader && authHeader.split(' ')[1];
         const refreshToken = req.cookies["refreshToken"];

@@ -13,6 +13,7 @@ interface UsersAttributes {
 }
 
 interface UserModifyAttributes {
+    userId:number;
     username?: string;
     password?: string;
     email?: string;
