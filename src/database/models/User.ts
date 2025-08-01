@@ -12,6 +12,15 @@ interface UsersAttributes {
     city?: string;
 }
 
+interface UserModifyAttributes {
+    username?: string;
+    password?: string;
+    email?: string;
+    avatar?: string;
+    country?: string;
+    city?: string;
+}
+
 //interface for what we're sending to the db
 interface UsersCreationAttributes extends Optional<UsersAttributes, 'userId'> {}
 
@@ -69,4 +78,4 @@ User.init(
     },
 );
 
-export { User, UsersAttributes, UsersCreationAttributes };
+export { User, UsersAttributes, UsersCreationAttributes, UserModifyAttributes };

@@ -13,6 +13,9 @@ function registerControllerRoutes(routes: RouteDefinition[]):Router{
             case 'post':
                 controllerRouter.post(route.path, route.handler);
                 break;
+            case 'put':
+                controllerRouter.put(route.path, route.handler);
+                break;
             default:
                 throw new Error (`Unsupported HTTP method: ${route.method}`);
         }

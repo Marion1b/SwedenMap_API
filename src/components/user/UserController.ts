@@ -4,7 +4,7 @@ import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import { Utils } from '../../utils/utils';
 import BaseController from '../BaseControllers';
 import { UserService } from './UserService';
-import { UsersAttributes } from '../../database/models/User';
+import { UsersAttributes,UserModifyAttributes } from '../../database/models/User';
 import { RouteDefinition } from '../../types/RouteDefinition';
 
 export default class UserController extends BaseController{
@@ -30,15 +30,11 @@ export default class UserController extends BaseController{
                 path: '/register',
                 method:'post',
                 handler: this.createUser.bind(this),
-            }/*,{
-                path: "/:id",
-                method: "put",
-                handler: this.updateUser.bind(this),
             },{
-                path: ':id',
-                method: 'delete',
-                handler: this.deleteUser.bind(this),
-            }*/
+                path: "/update",
+                method: 'put',
+                handler: this.modify.bind(this),
+            }
         ];
     }
 
@@ -165,6 +161,70 @@ export default class UserController extends BaseController{
         }catch(error){
             console.error(error);
             res.status(500).json({message:'Internal server error'});
+        }
+    }
+
+    public async modify(
+        req:Request,
+        res:Response,
+        next:NextFunction
+    ):Promise<void>{
+        const user:UserModifyAttributes = req.body;
+        const userId:number = parseInt(req.query.userId as string);
+        const authHeader = req.headers['authorization'];
+        const accessToken = authHeader && authHeader.split(' ')[1];
+        const refreshToken = req.cookies.refreshToken;
+
+        try{
+            //verify JWT
+            const refreshAccessToken = Utils.refreshAccessToken(refreshToken, accessToken);
+            if(!refreshAccessToken){
+                res.status(400).json({message:'Error JWT'});
+            }
+
+            //check if email not already in db
+            if(user.email){
+                const emailExists : UsersAttributes| null = await this.user.findOneByEmail(user.email);
+                if(emailExists){
+                    res.status(400).json({message: 'Email already registered'});
+                    return
+                }
+            }
+            
+
+            //check if username not already in db
+            if(user.username){
+                const usernameExists: UsersAttributes | null = await this.user.findOneByUsername(user.username);
+                if(usernameExists){
+                    res.status(400).json({message: 'Username already used'});
+                }
+            }
+            
+            //hash password
+            if(user.password){
+                user.password = Utils.encryptPassword(user.password);
+            }
+
+            //update user
+            const updateUser = await this.user.modify(userId,user);
+
+            if(!updateUser){
+                res.status(400).json({message:'Failed to update user'});
+                return;
+            };
+
+            res.status(201).json({
+                message: 'user updated',
+                user: await this.user.findOneById(userId),
+                access_JWT: refreshAccessToken
+            });
+
+            return;
+
+        }catch(error){
+            console.error(error);
+            res.status(500).json({message: 'Internal server error'});
+            return;
         }
     }
 }
