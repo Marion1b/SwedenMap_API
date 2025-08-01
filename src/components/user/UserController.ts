@@ -34,6 +34,10 @@ export default class UserController extends BaseController{
                 path: "/update",
                 method: 'put',
                 handler: this.modify.bind(this),
+            },{
+                path: "/check-cookies",
+                method: 'get',
+                handler: this.checkCookies.bind(this),
             }
         ];
     }
@@ -104,7 +108,13 @@ export default class UserController extends BaseController{
                 return;
             }
         
-            res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: false, // Pour le débogage, vous pouvez désactiver httpOnly temporairement
+                secure: false, // Désactivez secure en développement
+                sameSite: 'lax', // Utilisez 'lax' pour le développement local
+                path: '/',
+                domain: 'localhost' // Assurez-vous que le domaine est correct
+            });
 
             //response user created
             res.status(201).json({
@@ -135,7 +145,7 @@ export default class UserController extends BaseController{
                 res.status(400).json({message:'Email does not exist in db'});
                 return;
             }
-            const isGoodPassword:Promise<boolean> = Utils.verifyPassword(reqPassword, user.password);
+            const isGoodPassword:boolean = await Utils.verifyPassword(reqPassword, user.password);
 
             if(!isGoodPassword){
                 res.status(400).json({message:'Password incorrect'});
@@ -151,6 +161,13 @@ export default class UserController extends BaseController{
                 res.status(400).json({message : 'Could not generate web token'});
                 return;
             }
+
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure:false,
+                sameSite: 'lax', 
+                path:"/"
+            });
 
             //return user authentified
             res.status(201).json({
@@ -173,7 +190,7 @@ export default class UserController extends BaseController{
         const userId:number = parseInt(req.query.userId as string);
         const authHeader = req.headers['authorization'];
         const accessToken = authHeader && authHeader.split(' ')[1];
-        const refreshToken = req.cookies.refreshToken;
+        const refreshToken = req.cookies["refreshToken"];
 
         try{
             //verify JWT
@@ -227,4 +244,33 @@ export default class UserController extends BaseController{
             return;
         }
     }
+
+    public async checkCookies(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> {
+    try {
+        // Vérifiez si les cookies sont présents
+        if (!req.cookies) {
+            res.status(400).json({ message: 'No cookies found' });
+            return;
+        }
+
+        console.log('Cookies:', req.cookies); // Affiche les cookies dans la console
+
+        // Vérifiez si le refreshToken est présent
+        const refreshToken = req.cookies.refreshToken;
+        if (!refreshToken) {
+            res.status(400).json({ message: 'Refresh token not found in cookies' });
+            return;
+        }
+
+        // Si tout est bon, envoyez le refreshToken
+        res.status(200).json({ refreshToken });
+    } catch (error) {
+        console.error('Error checking cookies:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
 }

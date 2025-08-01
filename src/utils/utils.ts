@@ -30,7 +30,7 @@ export class Utils {
         try {
             const verifyAccessToken = this.verifyAccessToken(accessToken);
             const payload = this.verifyRefreshJWT(refreshToken);
-            if (verifyAccessToken && payload && typeof payload !== 'string' && payload.id) {
+            if (payload && typeof payload !== 'string' && payload.id) {
                 return this.generateAccessJWT(payload.id);
             }
         } catch (error) {
