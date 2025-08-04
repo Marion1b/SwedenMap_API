@@ -109,11 +109,10 @@ export default class UserController extends BaseController{
             }
         
             res.cookie('refreshToken', refreshToken, {
-                httpOnly: false, // Pour le débogage, vous pouvez désactiver httpOnly temporairement
-                secure: false, // Désactivez secure en développement
-                sameSite: 'lax', // Utilisez 'lax' pour le développement local
-                path: '/',
-                domain: 'localhost' // Assurez-vous que le domaine est correct
+                httpOnly: true,
+                secure:false,
+                sameSite: 'lax', 
+                path:"/"
             });
 
             //response user created
@@ -229,6 +228,8 @@ export default class UserController extends BaseController{
                 res.status(400).json({message:'Failed to update user'});
                 return;
             };
+
+            console.log(updateUser);
 
             res.status(201).json({
                 message: 'user updated',
