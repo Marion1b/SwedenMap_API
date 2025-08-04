@@ -7,6 +7,9 @@ import bodyParser from 'body-parser';
 
 const corsOptions = {
   origin: 'http://localhost:5173',
+  credentials: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  allowedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus:200
 };
 console.log(`Launching app`);
@@ -46,7 +49,7 @@ async function init(){
 app.use(express.json());
 
 app.get('/', (req, res)=>{
-  res.send('Hello World!')
+  res.send('Hello World!');
 })
 
 const PORT = process.env.APP_PORT || 8080;

@@ -2,6 +2,7 @@ import {
     User,
     UsersAttributes,
     UsersCreationAttributes,
+    UserModifyAttributes
 } from '../../database/models/User';
 import { StatusCodes } from 'http-status-codes';
 
@@ -79,6 +80,26 @@ export class UserService{
         try{
             const user = await User.create(payload);
             return user;
+        }catch(error){
+            console.error(error);
+            throw error;
+        }
+    }
+
+    //modify user
+    async modify(userId:number, payload:UserModifyAttributes): Promise<UsersAttributes>{
+        try{
+            const user = await User.update(payload, {
+                where:{userId:userId},
+                returning:true
+            });
+
+            if(user[0] === 0){
+                throw new Error ('User not found or no changes made');
+            }
+            
+            const updatedUser = await User.findByPk(userId);
+            return updatedUser;
         }catch(error){
             console.error(error);
             throw error;
