@@ -227,9 +227,7 @@ export default class UserController extends BaseController{
             if(!updateUser){
                 res.status(400).json({message:'Failed to update user'});
                 return;
-            };
-
-            console.log(updateUser);
+            }
 
             res.status(201).json({
                 message: 'user updated',
